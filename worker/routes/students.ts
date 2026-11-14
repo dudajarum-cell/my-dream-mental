@@ -133,10 +133,13 @@ export async function routeStudents(req: Request, env: Env, url: URL): Promise<R
     const row = await env.DB.prepare("SELECT s.*, g.name as group_name FROM students s LEFT JOIN groups g ON g.id = s.group_id WHERE s.id = ?").bind(m[1]).first();
     return ok({ student: row });
   }
-  // DELETE /api/students/:id (?hard=1 → hard delete, else deactivate)
+  // DELETE /api/students/:id — butunlay o'chirish (hard delete).
+  // ?soft=1 → faqat nofaol qilish (ehtiyotkorlik uchun qoldirilgan).
   // Eslatma: D1 da FK cascade kafolatlanmaydi, shuning uchun hard delete'da bolalarni o'zimiz tozalaymiz.
   if (m && req.method === "DELETE") {
-    if (url.searchParams.get("hard") === "1") {
+    if (url.searchParams.get("soft") === "1") {
+      await env.DB.prepare("UPDATE students SET status = 'inactive', updated_at = ? WHERE id = ?").bind(nowSec(), m[1]).run();
+    } else {
       const qa = await env.DB.prepare("SELECT id FROM test_attempts WHERE student_id = ?").bind(m[1]).all<{ id: string }>();
       const aids = (qa.results || []).map((r) => r.id);
       for (let i = 0; i < aids.length; i += 50) {
@@ -149,8 +152,6 @@ export async function routeStudents(req: Request, env: Env, url: URL): Promise<R
       await env.DB.prepare("DELETE FROM daily_stats WHERE student_id = ?").bind(m[1]).run().catch(() => {});
       await env.DB.prepare("DELETE FROM student_sessions WHERE student_id = ?").bind(m[1]).run().catch(() => {});
       await env.DB.prepare("DELETE FROM students WHERE id = ?").bind(m[1]).run();
-    } else {
-      await env.DB.prepare("UPDATE students SET status = 'inactive', updated_at = ? WHERE id = ?").bind(nowSec(), m[1]).run();
     }
     return ok({ message: "Bajarildi" });
   }

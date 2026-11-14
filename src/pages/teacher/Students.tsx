@@ -91,11 +91,11 @@ export default function Students() {
     } catch (e) { push(e instanceof Error ? e.message : "Xatolik", "err"); }
   };
 
-  const deactivate = async () => {
+  const removeStudent = async () => {
     if (!confirmDel) return;
     try {
       await api.del(`/api/students/${confirmDel.id}`);
-      push("Deaktiv qilindi.", "ok");
+      push("O'quvchi butunlay o'chirildi.", "ok");
       setConfirmDel(null);
       void load();
     } catch (e) { push(e instanceof Error ? e.message : "Xatolik", "err"); }
@@ -149,11 +149,10 @@ export default function Students() {
                   <td className="whitespace-nowrap">
                     <button onClick={() => openEdit(s)} className="mr-2 hover:scale-125 transition inline-block" title="Tahrirlash">✏️</button>
                     <button onClick={() => void regen(s.id)} className="mr-2 hover:scale-125 transition inline-block" title="Kodni qayta yaratish">🔄</button>
-                    {s.status === "active" ? (
-                      <button onClick={() => setConfirmDel(s)} className="hover:scale-125 transition inline-block" title="Deaktiv">🗑</button>
-                    ) : (
-                      <button onClick={() => void reactivate(s.id)} className="hover:scale-125 transition inline-block" title="Faollashtirish">✅</button>
+                    {s.status !== "active" && (
+                      <button onClick={() => void reactivate(s.id)} className="mr-2 hover:scale-125 transition inline-block" title="Faollashtirish">✅</button>
                     )}
+                    <button onClick={() => setConfirmDel(s)} className="hover:scale-125 transition inline-block" title="Butunlay o'chirish">🗑</button>
                   </td>
                 </tr>
               ))}
@@ -210,8 +209,8 @@ export default function Students() {
       <ConfirmDialog
         open={!!confirmDel}
         onClose={() => setConfirmDel(null)}
-        onConfirm={() => void deactivate()}
-        text={confirmDel ? `"${confirmDel.full_name}" deaktiv qilinsinmi? (qayta faollashtirish mumkin)` : ""}
+        onConfirm={() => void removeStudent()}
+        text={confirmDel ? `"${confirmDel.full_name}" butunlay o'chirilsinmi? Barcha test natijalari va statistikasi ham o'chadi. Bu amalni qaytarib bo'lmaydi.` : ""}
       />
     </div>
   );

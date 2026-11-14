@@ -3,9 +3,10 @@ import { useNavigate, Link } from "react-router-dom";
 import { api } from "../../lib/api";
 import { useAuth } from "../../hooks/useAuth";
 import { useToast, Button } from "../../components/ui";
+import { formatUzPhone, uzPhoneDigits } from "../../lib/utils";
 
 export default function TeacherLogin() {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("+998-");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -15,7 +16,8 @@ export default function TeacherLogin() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !password) { push("Telefon raqami va parolni kiriting.", "err"); return; }
+    if (uzPhoneDigits(username).length !== 9) { push("Telefon raqamini to'liq kiriting: +998-91-376-99-80", "err"); return; }
+    if (!password) { push("Parolni kiriting.", "err"); return; }
     setBusy(true);
     try {
       await api.post("/api/auth/teacher/login", { username: username.trim(), password });
@@ -39,7 +41,7 @@ export default function TeacherLogin() {
         <form onSubmit={submit} className="space-y-3">
           <div>
             <label className="text-[12px] font-semibold text-slate-200" htmlFor="tu">Telefon raqami</label>
-            <input id="tu" type="tel" inputMode="tel" className="input mt-1.5 !py-3" placeholder="+998 90 123 45 67" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+            <input id="tu" type="tel" inputMode="tel" className="input mt-1.5 !py-3" placeholder="+998-91-376-99-80" value={username} onChange={(e) => setUsername(formatUzPhone(e.target.value))} autoComplete="username" />
             <p className="mt-1.5 text-[11px] text-slate-500">Faqat telefon raqami orqali kirish</p>
           </div>
           <div>
