@@ -4,7 +4,7 @@ Mental arifmetika o'qituvchilari va o'quvchilari uchun to'liq ishlaydigan web-pl
 
 **Tagline:** Mental arifmetikani har kuni mashq qil, natijangni kuzat!
 
-- O'qituvchi: login/parol → dashboard, guruhlar, o'quvchilar (unique kod), testlar, statistika, CSV eksport
+- O'qituvchi: telefon raqami/parol → dashboard, guruhlar, o'quvchilar (unique kod), testlar, statistika, CSV eksport
 - O'quvchi: `MDM-XXXXXX` kod orqali kirish → kunlik testlar, natija, streak, faol vaqt
 - Stack: React + TypeScript + Vite + Tailwind + React Router + Zod + Cloudflare Workers + D1
 - Deploy: bitta Worker (frontend static + `/api/*`), Workers Sites **ishlatilmaydi**
@@ -100,7 +100,8 @@ npm run build
 
 | Var | Ma'nosi |
 |---|---|
-| `TEACHER_USERNAME` / `TEACHER_EMAIL` / `TEACHER_PASSWORD` | Seed orqali yaratiladigan teacher |
+| `TEACHER_USERNAME` | Teacher logini — telefon raqami (`+998XXXXXXXXX` yoki `998XXXXXXXXX`), bazaga faqat raqamlar bilan yoziladi |
+| `TEACHER_EMAIL` / `TEACHER_PASSWORD` | Seed orqali yaratiladigan teacher emaili va paroli |
 | `SESSION_SECRET` | Kelajakda cookie imzolash uchun zaxira (hozir sessiyalar D1 da) |
 | `APP_TIMEZONE` | `Asia/Tashkent` (kodda UTC+5 fiks offset) |
 
@@ -157,7 +158,7 @@ git push -u origin main
 ## API (qisqacha)
 
 ```
-POST /api/auth/teacher/login   {username, password} → HttpOnly cookie
+POST /api/auth/teacher/login   {username: "+998XXXXXXXXX", password} → HttpOnly cookie
 POST /api/auth/teacher/logout
 POST /api/auth/teacher/password {current, password} → parol almashtirish
 GET  /api/auth/me
@@ -212,7 +213,7 @@ Indexlar: code, group, status, student+date, attempt, activity date.
 | Muammo | Yechim |
 |---|---|
 | `database_id` xato | `npx wrangler d1 list` → id ni `wrangler.jsonc` ga yozing |
-| Seed dan keyin login bo'lmayapti | Konsoldagi teacher username/parolni `.env` dagi bilan solishtiring; `npm run db:seed` ni qayta yuguring |
+| Seed dan keyin login bo'lmayapti | Teacher login faqat telefon raqami (`+998XXXXXXXXX`) orqali ishlaydi; `.env` dagi `TEACHER_USERNAME` ni tekshiring; `npm run db:seed` ni qayta yuguring |
 | Student kod topilmadi | Kodni uppercase kiriting; student `active` ekanini teacher paneldan tekshiring |
 | `vitest` cloudflare xatosi | Testlar `vitest.config.ts` orqali yuguradi (`npm test`) — `vite.config.ts` emas |
 | 429 Rate limit | 1 daqiqa kuting (login: 10 urinish/daq) |
