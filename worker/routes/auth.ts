@@ -6,6 +6,15 @@ import { normalizeCode } from "../db/client";
 import { checkRate } from "../middleware/rateLimit";
 import { uid } from "../db/client";
 
+// Teacher login identifier — Uzbekistan phone number stored as digits (998XXXXXXXXX).
+// Accepts +998 91 376 99 80, 998913769980, 91 376 99 80 and similar formats.
+function normalizePhoneLogin(input: string): string | null {
+  let digits = input.replace(/\D/g, "");
+  if (digits.length === 9) digits = `998${digits}`;
+  if (digits.length === 13 && digits.startsWith("8")) digits = digits.slice(1);
+  return /^998\d{9}$/.test(digits) ? digits : null;
+}
+
 // Housekeeping: drop expired sessions + old audit rows (fire-and-forget).
 function cleanup(env: Env): void {
   const week = nowSec() - 7 * 24 * 3600;
@@ -25,19 +34,21 @@ export async function routeAuth(req: Request, env: Env, url: URL): Promise<Respo
     if (!rl.allowed) return err("RATE_LIMIT", "Juda ko'p urinish. Birozdan so'ng qayta urinib ko'ring.", 429);
     const body = await safeJson(req);
     const parsed = teacherLoginSchema.safeParse(body);
-    if (!parsed.success) return err("VALIDATION", "Login yoki parol noto'g'ri.", 400);
+    if (!parsed.success) return err("VALIDATION", "Telefon raqami yoki parol noto'g'ri.", 400);
+    const loginId = normalizePhoneLogin(parsed.data.username);
+    if (!loginId) return err("VALIDATION", "Telefon raqamini to'g'ri kiriting (+998 XX XXX XX XX).", 400);
     const row = await env.DB.prepare(
-      "SELECT id, username, email, password_hash, password_salt, full_name FROM teachers WHERE username = ? OR email = ?"
-    ).bind(parsed.data.username, parsed.data.username).first<{ id: string; username: string; email: string; password_hash: string; password_salt: string; full_name: string }>();
+      "SELECT id, username, email, password_hash, password_salt, full_name FROM teachers WHERE username = ?"
+    ).bind(loginId).first<{ id: string; username: string; email: string; password_hash: string; password_salt: string; full_name: string }>();
     if (!row) {
       // Timing oracle himoyasi: foydalanuvchi topilmasa ham dummy hash hisoblab vaqtni tekislaymiz
       await verifyPassword(parsed.data.password, "AAAAAAAAAAAAAAAAAAAAAA==", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=").catch(() => {});
-      await env.DB.prepare("INSERT INTO login_attempts (kind, identifier, ip, success, created_at) VALUES ('teacher', ?, ?, 0, ?)").bind(parsed.data.username.slice(0, 100), ip, nowSec()).run().catch(() => {});
-      return err("AUTH", "Login yoki parol noto'g'ri.", 401);
+      await env.DB.prepare("INSERT INTO login_attempts (kind, identifier, ip, success, created_at) VALUES ('teacher', ?, ?, 0, ?)").bind(loginId, ip, nowSec()).run().catch(() => {});
+      return err("AUTH", "Telefon raqami yoki parol noto'g'ri.", 401);
     }
     const good = await verifyPassword(parsed.data.password, row.password_salt, row.password_hash);
     await env.DB.prepare("INSERT INTO login_attempts (kind, identifier, ip, success, created_at) VALUES ('teacher', ?, ?, ?, ?)").bind(row.username, ip, good ? 1 : 0, nowSec()).run().catch(() => {});
-    if (!good) return err("AUTH", "Login yoki parol noto'g'ri.", 401);
+    if (!good) return err("AUTH", "Telefon raqami yoki parol noto'g'ri.", 401);
     const token = randomToken();
     const th = await sha256Hex(token);
     await env.DB.prepare("INSERT INTO teacher_sessions (id, teacher_id, token_hash, created_at, expires_at, ip, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)")

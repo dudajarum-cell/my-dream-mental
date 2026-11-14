@@ -22,8 +22,16 @@ function loadDotEnv() {
   return out;
 }
 
+// Teacher login identifier is a phone number — store as digits (998XXXXXXXXX).
+function normalizePhone(input) {
+  let digits = String(input).replace(/\D/g, "");
+  if (digits.length === 9) digits = `998${digits}`;
+  if (digits.length === 13 && digits.startsWith("8")) digits = digits.slice(1);
+  return /^998\d{9}$/.test(digits) ? digits : String(input).trim();
+}
+
 const env = loadDotEnv();
-const TEACHER_USERNAME = process.env.TEACHER_USERNAME || env.TEACHER_USERNAME || "teacher";
+const TEACHER_USERNAME = normalizePhone(process.env.TEACHER_USERNAME || env.TEACHER_USERNAME || "998901234567");
 const TEACHER_EMAIL = process.env.TEACHER_EMAIL || env.TEACHER_EMAIL || "teacher@mydream.uz";
 const TEACHER_PASSWORD = process.env.TEACHER_PASSWORD || env.TEACHER_PASSWORD || "ChangeMe123!";
 

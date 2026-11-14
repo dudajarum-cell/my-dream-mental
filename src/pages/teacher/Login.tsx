@@ -15,7 +15,7 @@ export default function TeacherLogin() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !password) { push("Login va parolni kiriting.", "err"); return; }
+    if (!username.trim() || !password) { push("Telefon raqami va parolni kiriting.", "err"); return; }
     setBusy(true);
     try {
       await api.post("/api/auth/teacher/login", { username: username.trim(), password });
@@ -38,8 +38,9 @@ export default function TeacherLogin() {
       <div className="card m-card p-5 sm:p-8">
         <form onSubmit={submit} className="space-y-3">
           <div>
-            <label className="text-[12px] font-semibold text-slate-200" htmlFor="tu">Foydalanuvchi nomi</label>
-            <input id="tu" className="input mt-1.5 !py-3" placeholder="ustoz_malika" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+            <label className="text-[12px] font-semibold text-slate-200" htmlFor="tu">Telefon raqami</label>
+            <input id="tu" type="tel" inputMode="tel" className="input mt-1.5 !py-3" placeholder="+998 90 123 45 67" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+            <p className="mt-1.5 text-[11px] text-slate-500">Faqat telefon raqami orqali kirish</p>
           </div>
           <div>
             <label className="text-[12px] font-semibold text-slate-200" htmlFor="tp">Parol</label>
