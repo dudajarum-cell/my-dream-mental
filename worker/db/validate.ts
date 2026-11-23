@@ -6,7 +6,7 @@ export const teacherLoginSchema = z.object({
 });
 
 export const studentLoginSchema = z.object({
-  code: z.string().min(3).max(20),
+  code: z.string().trim().regex(/^[A-Za-z0-9]{4}$/),
 });
 
 export const studentCreateSchema = z.object({

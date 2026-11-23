@@ -47,7 +47,7 @@ export default function TeacherLogin() {
           <div>
             <label className="text-[12px] font-semibold text-slate-200" htmlFor="tp">Parol</label>
             <div className="relative mt-1.5">
-              <input id="tp" type={show ? "text" : "password"} className="input !py-3 pr-20" placeholder="••••••••••" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+              <input id="tp" type={show ? "text" : "password"} className="input !py-3 pr-20" placeholder="••••••••••" value={password} onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))} autoComplete="current-password" />
               <button type="button" onClick={() => setShow((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-gold-300">
                 {show ? "Yashirish" : "Ko'rsatish"}
               </button>
