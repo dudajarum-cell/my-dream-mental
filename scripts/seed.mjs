@@ -36,11 +36,17 @@ const TEACHER_EMAIL = process.env.TEACHER_EMAIL || env.TEACHER_EMAIL || "teacher
 const TEACHER_PASSWORD = process.env.TEACHER_PASSWORD || env.TEACHER_PASSWORD || "ChangeMe123!";
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const CODE_LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+const CODE_DIGITS = "23456789";
+
+// 4 ta belgi, harf va raqam aralash (masalan A7K2).
 function makeCode() {
   const b = randomBytes(6);
-  let s = "";
-  for (let i = 0; i < 6; i++) s += CODE_ALPHABET[b[i] % CODE_ALPHABET.length];
-  return `MDM-${s}`;
+  const chars = [];
+  for (let i = 0; i < 4; i++) chars.push(CODE_ALPHABET[b[i] % CODE_ALPHABET.length]);
+  if (!chars.some((c) => CODE_LETTERS.includes(c))) chars[b[4] % 4] = CODE_LETTERS[b[4] % CODE_LETTERS.length];
+  if (!chars.some((c) => CODE_DIGITS.includes(c))) chars[b[5] % 4] = CODE_DIGITS[b[5] % CODE_DIGITS.length];
+  return chars.join("");
 }
 
 function hashPassword(password, saltB64) {

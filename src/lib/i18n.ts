@@ -7,7 +7,7 @@ export const t = {
   studentLogin: "O'QUVCHI KIRISHI",
   teacherLogin: "O'QITUVCHI KIRISHI",
   enterCode: "Kodingizni kiriting",
-  codePlaceholder: "Masalan: MDM-7K4P92",
+  codePlaceholder: "Masalan: A7K2",
   login: "Kirish",
   logout: "Chiqish",
   welcome: (name: string) => `Salom, ${name} 👋`,

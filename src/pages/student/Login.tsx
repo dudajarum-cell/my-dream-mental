@@ -14,12 +14,14 @@ export default function StudentLogin() {
   const { refresh } = useAuth();
   const { push } = useToast();
 
+  const cleanCode = (v: string) => v.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code.trim()) { push(t.codeNotFound, "err"); return; }
+    if (code.length !== 4) { push("Kod 4 ta belgidan iborat bo'lishi kerak.", "err"); return; }
     setBusy(true);
     try {
-      await api.post("/api/student/login", { code: code.trim() });
+      await api.post("/api/student/login", { code });
       await refresh();
       nav("/student/dashboard");
     } catch {
@@ -47,13 +49,15 @@ export default function StudentLogin() {
           <input
             aria-label="O'quvchi kodi"
             className="input text-center text-xl sm:text-2xl font-mono tracking-[0.15em] uppercase !py-3.5"
-            placeholder="MDM-429815"
+            placeholder="A7K2"
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            maxLength={14}
+            onChange={(e) => setCode(cleanCode(e.target.value))}
+            maxLength={4}
             autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
           />
-          <div className="text-[11px] text-slate-500">Format: MDM-XXXXXX (6 ta belgi)</div>
+          <div className="text-[11px] text-slate-500">Format: 4 ta belgi, harf va raqam aralash (masalan: A7K2)</div>
           <Button disabled={busy} className="w-full text-[15px] !py-3.5 tracking-wide">{busy ? t.loading : "TIZIMGA KIRISH"}</Button>
         </form>
         <div className="mt-3 text-[13px] text-slate-400 text-center">

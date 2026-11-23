@@ -4,12 +4,13 @@ import { getTeacher, getStudent } from "../middleware/auth";
 import { studentCreateSchema, studentUpdateSchema } from "../db/validate";
 
 async function uniqueCode(env: Env): Promise<string> {
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 50; i++) {
     const c = generateStudentCode();
     const ex = await env.DB.prepare("SELECT id FROM students WHERE student_code = ?").bind(c).first();
     if (!ex) return c;
   }
-  return `MDM-${uid().slice(0, 6).toUpperCase().replace(/-/g, "X")}`;
+  const t = Date.now().toString(36).toUpperCase().replace(/[^A-Z0-9]/g, "");
+  return `Z${t.slice(-2)}9`;
 }
 
 export async function routeStudents(req: Request, env: Env, url: URL): Promise<Response | null> {

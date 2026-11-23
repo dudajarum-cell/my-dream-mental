@@ -5,14 +5,14 @@ Mental arifmetika o'qituvchilari va o'quvchilari uchun to'liq ishlaydigan web-pl
 **Tagline:** Mental arifmetikani har kuni mashq qil, natijangni kuzat!
 
 - O'qituvchi: telefon raqami/parol → dashboard, guruhlar, o'quvchilar (unique kod), testlar, statistika, CSV eksport
-- O'quvchi: `MDM-XXXXXX` kod orqali kirish → kunlik testlar, natija, streak, faol vaqt
+- O'quvchi: 4 ta belgidan iborat kod (harf + raqam, masalan `A7K2`) orqali kirish → kunlik testlar, natija, streak, faol vaqt
 - Stack: React + TypeScript + Vite + Tailwind + React Router + Zod + Cloudflare Workers + D1
 - Deploy: bitta Worker (frontend static + `/api/*`), Workers Sites **ishlatilmaydi**
 
 ## Features
 
 - 👩‍🏫 Teacher auth (PBKDF2-SHA256 hash, HttpOnly + Secure + SameSite cookie, server session, 7 kun)
-- 🎒 Student auth (unique `MDM-XXXXXX` kod, case-insensitive, 30 kunlik sessiya, rate-limit, deaktiv kod ishlamaydi)
+- 🎒 Student auth (unique 4 belgili kod, harf+raqam aralash, case-insensitive, 30 kunlik sessiya, rate-limit, deaktiv kod ishlamaydi)
 - 📝 Test generator (grader-bo'limlar, 5 daraja, integer-only bo'lish, takrorlanmaydigan savollar, server authoritative tekshiruv)
 - ⚡ Flash-anzan rejimi — HAMMA testlar shu rejimda: har bir misolda sonlar ketma-ket chaqnab o'chadi, har misol oxirida bitta javob (`mode: flash`)
 - 🎛 Test oldidan sozlash ekrani (`/student/test/:id/setup`): misollar soni (5/10/20/30/50/100), har misolda nechta son, tezlik slider, xonalik, amallar — override'lar serverda clamp'lanadi

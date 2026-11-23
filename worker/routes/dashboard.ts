@@ -64,7 +64,7 @@ export async function routeLeaderboard(req: Request, env: Env, url: URL): Promis
     id: r.id,
     full_name: r.full_name,
     // O'quvchilar bir-birining kirish kodini ko'rmasin (kod = parol vazifasida!)
-    student_code: teacher ? r.student_code : r.id === meId ? r.student_code : "MDM-****",
+    student_code: teacher ? r.student_code : r.id === meId ? r.student_code : "****",
     level: r.level,
     group_name: r.group_name,
     tests: r.tests,

@@ -84,7 +84,7 @@ export async function routeAuth(req: Request, env: Env, url: URL): Promise<Respo
     const parsed = studentLoginSchema.safeParse(body);
     if (!parsed.success) return err("VALIDATION", "Kod noto'g'ri formatda.", 400);
     const code = normalizeCode(String(parsed.data.code));
-    if (!/^MDM-[A-Z0-9]{4,10}$/.test(code)) return err("AUTH", "Ushbu kod topilmadi.", 404);
+    if (!/^[A-Z0-9]{4}$/.test(code)) return err("VALIDATION", "Kod 4 ta belgidan iborat bo'lishi kerak.", 400);
     const rlIp = checkRate(`slogin-ip:${ip}`, 60, 60);
     if (!rlIp.allowed) return err("RATE_LIMIT", "Juda ko'p urinish. Birozdan so'ng qayta urinib ko'ring.", 429);
     const rl = checkRate(`slogin:${ip}:${code}`, 10, 60);

@@ -1,16 +1,25 @@
 import { describe, it, expect } from "vitest";
 import { generateQuestions, calcScore, formatDuration, normalizeOps, generateFlashSequence, clampFlashOverrides, parseFlashExpression, calcLeaderboardPoints } from "../worker/services/testEngine";
 import { sanitizeAnswerInput, parseAnswer } from "../src/lib/api";
-import { normalizeCode, isSameOrigin } from "../worker/db/client";
+import { normalizeCode, isSameOrigin, generateStudentCode } from "../worker/db/client";
 import { exportKind } from "../worker/routes/dashboard";
 
 describe("student code", () => {
-  it("normalizes case-insensitively", () => {
-    expect(normalizeCode("  mdm-7k4p92 ")).toBe("MDM-7K4P92");
+  it("normalizes case-insensitively and strips spaces/hyphens", () => {
+    expect(normalizeCode("  a7k2 ")).toBe("A7K2");
+    expect(normalizeCode("a7-k2")).toBe("A7K2");
   });
-  it("matches required format", () => {
-    expect(/^MDM-[A-Z0-9]{4,10}$/.test(normalizeCode("MDM-AB12CD"))).toBe(true);
-    expect(/^MDM-[A-Z0-9]{4,10}$/.test(normalizeCode("wrong"))).toBe(false);
+  it("matches required 4-character format", () => {
+    expect(/^[A-Z0-9]{4}$/.test(normalizeCode("A7K2"))).toBe(true);
+    expect(/^[A-Z0-9]{4}$/.test(normalizeCode("wrong"))).toBe(false);
+  });
+  it("generates 4-character codes with both letters and digits", () => {
+    for (let i = 0; i < 50; i++) {
+      const c = generateStudentCode();
+      expect(c).toMatch(/^[A-Z0-9]{4}$/);
+      expect(c).toMatch(/[A-Z]/);
+      expect(c).toMatch(/\d/);
+    }
   });
 });
 

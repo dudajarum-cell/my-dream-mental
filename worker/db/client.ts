@@ -64,17 +64,27 @@ export function ok<T>(data: T, status = 200): Response {
 }
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const CODE_LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+const CODE_DIGITS = "23456789";
 
+// O'quvchi kodi: 4 ta belgi, harf va raqam aralash (masalan A7K2).
+// I/O/0/1 kabi chalkash belgilar ishlatilmaydi.
 export function generateStudentCode(): string {
   const b = new Uint8Array(6);
   crypto.getRandomValues(b);
-  let s = "";
-  for (let i = 0; i < 6; i++) s += CODE_ALPHABET[b[i] % CODE_ALPHABET.length];
-  return `MDM-${s}`;
+  const chars: string[] = [];
+  for (let i = 0; i < 4; i++) chars.push(CODE_ALPHABET[b[i] % CODE_ALPHABET.length]);
+  if (!chars.some((c) => CODE_LETTERS.includes(c))) {
+    chars[b[4] % 4] = CODE_LETTERS[b[4] % CODE_LETTERS.length];
+  }
+  if (!chars.some((c) => CODE_DIGITS.includes(c))) {
+    chars[b[5] % 4] = CODE_DIGITS[b[5] % CODE_DIGITS.length];
+  }
+  return chars.join("");
 }
 
 export function normalizeCode(raw: string): string {
-  return raw.trim().toUpperCase().replace(/\s+/g, "");
+  return String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
 export async function safeJson(req: Request): Promise<Record<string, unknown>> {
