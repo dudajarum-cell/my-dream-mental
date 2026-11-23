@@ -84,7 +84,8 @@ export function generateStudentCode(): string {
 }
 
 export function normalizeCode(raw: string): string {
-  return String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  // Faqat bosh/oxiridagi bo'shliqlar tozalanadi — ichki probel va belgilar rad etiladi.
+  return String(raw || "").trim().toUpperCase();
 }
 
 export async function safeJson(req: Request): Promise<Record<string, unknown>> {

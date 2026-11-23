@@ -5,13 +5,16 @@ import { normalizeCode, isSameOrigin, generateStudentCode } from "../worker/db/c
 import { exportKind } from "../worker/routes/dashboard";
 
 describe("student code", () => {
-  it("normalizes case-insensitively and strips spaces/hyphens", () => {
+  it("trims edges and normalizes case-insensitively", () => {
     expect(normalizeCode("  a7k2 ")).toBe("A7K2");
-    expect(normalizeCode("a7-k2")).toBe("A7K2");
+    expect(normalizeCode("a7k2")).toBe("A7K2");
   });
-  it("matches required 4-character format", () => {
+  it("matches required 4-character format and rejects spaces/hyphens", () => {
     expect(/^[A-Z0-9]{4}$/.test(normalizeCode("A7K2"))).toBe(true);
     expect(/^[A-Z0-9]{4}$/.test(normalizeCode("wrong"))).toBe(false);
+    expect(/^[A-Z0-9]{4}$/.test(normalizeCode("a7 k2"))).toBe(false);
+    expect(/^[A-Z0-9]{4}$/.test(normalizeCode("a7-k2"))).toBe(false);
+    expect(/^[A-Z0-9]{4}$/.test(normalizeCode("A7K2X"))).toBe(false);
   });
   it("generates 4-character codes with both letters and digits", () => {
     for (let i = 0; i < 50; i++) {
